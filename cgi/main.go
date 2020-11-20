@@ -13,6 +13,7 @@ import (
 var (
 	client account.AccountService
 )
+
 func initMicro() {
 	if err := cmd.Init(); err != nil {
 		panic(err)
@@ -20,29 +21,29 @@ func initMicro() {
 	client = account.NewAccountService("micro.service.account", microClient.DefaultClient)
 }
 
-func GinRegisterAccount(c *gin.Context) {
-	rsp, err := client.AccountRegister(context.TODO(), &account.AccountRegisterReq{
-		UserName: c.Param("username"),
-		Passwd:   c.Param("password"),
-	})
-	fmt.Println("================================",c.Params)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError,gin.H{
+func newRouter() *gin.Engine {
+	route := gin.Default()
+	route.POST("/account/register", func(c *gin.Context) {
+		userName := c.PostForm("username")
+		passWd := c.PostForm("password")
+		fmt.Println("============", userName, passWd)
+		rsp, err := client.AccountRegister(context.TODO(), &account.AccountRegisterReq{
+			UserName: userName,
+			Passwd:   passWd,
+		})
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"code":    rsp.Code,
+				"message": rsp.Message,
+			})
+			panic(err)
+		}
+		c.JSON(http.StatusOK, gin.H{
 			"code":    rsp.Code,
 			"message": rsp.Message,
 		})
-		panic(err)
-	}
-	c.JSON(http.StatusOK, gin.H{
-		"code":    rsp.Code,
-		"message": rsp.Message,
+		return
 	})
-	return
-}
-
-func newRouter() *gin.Engine {
-	route := gin.Default()
-	route.POST("/account/register", GinRegisterAccount)
 	return route
 }
 

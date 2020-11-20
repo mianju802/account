@@ -1,0 +1,14 @@
+# docker-compose.yaml
+version: "3.1"
+services:
+  svr:
+    build: ./svr
+    ports:
+    - 50051:50051
+    environment:
+      MICROADDRESS: ":50051"
+      MICRO_REGISTRY: "mdns"
+  cgi:
+    build: ./cgi
+    environment:
+      MICRO_REGISTRY: "mdns"
