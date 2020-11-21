@@ -1,5 +1,5 @@
 build:
-		GOOS=linux GOARCH=amd64 go build
+		GOOS=linux CGO_ENABLED=0 go build
 		docker build -t cgi .
 run:
-		docker run -e MICRO_REGISTRY=mdns cgi
+		docker run -p 1234:1234 -e MICRO_REGISTRY=mdns cgi

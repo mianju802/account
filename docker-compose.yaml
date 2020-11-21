@@ -10,5 +10,8 @@ services:
       MICRO_REGISTRY: "mdns"
   cgi:
     build: ./cgi
+    ports:
+    - 1234:1234
     environment:
+      MICROADDRESS: ":1234"
       MICRO_REGISTRY: "mdns"

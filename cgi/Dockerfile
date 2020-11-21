@@ -1,5 +1,6 @@
 FROM alpine:latest
-RUN makedir /code
-WORKDIR /code
-ADD cgi /code/cgi
+RUN apk --no-cache add ca-certificates
+RUN mkdir /app
+WORKDIR /app
+COPY cgi /app/cgi
 CMD ["./cgi"]

@@ -1,5 +1,6 @@
 FROM alpine:latest
-RUN makedir /code
-WORKDIR /code
-ADD svr /code/svr
-CMD ["./svr "]
+RUN apk --no-cache add ca-certificates
+RUN mkdir /app
+WORKDIR /app
+COPY svr /app/svr
+CMD ["./svr"]
