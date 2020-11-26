@@ -4,6 +4,8 @@ import (
 	"context"
 	"github.com/mianju802/protocol/service/account"
 	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-plugins/registry/consul"
 )
 
 type AccountService struct {
@@ -18,7 +20,13 @@ func (a AccountService) AccountRegister(ctx context.Context, req *account.Accoun
 }
 
 func main() {
+	consulReg := consul.NewRegistry(func(options *registry.Options) {
+		options.Addrs = []string{
+			"172.16.68.131:30769",
+		}
+	})
 	service := micro.NewService(
+		micro.Registry(consulReg),
 		micro.Name("micro.service.account"),
 	)
 	service.Init()

@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/mianju802/protocol/service/account"
-	microClient "github.com/micro/go-micro/client"
-	"github.com/micro/go-micro/config/cmd"
+	"github.com/micro/go-micro"
+	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-plugins/registry/consul"
 	"net/http"
 )
 
@@ -15,10 +16,16 @@ var (
 )
 
 func initMicro() {
-	if err := cmd.Init(); err != nil {
-		panic(err)
-	}
-	client = account.NewAccountService("micro.service.account", microClient.DefaultClient)
+	consulReq := consul.NewRegistry(func(options *registry.Options) {
+		options.Addrs = []string{
+			"172.16.68.131:30769",
+		}
+	})
+	service := micro.NewService(
+		micro.Name("micro.client.account"),
+		micro.Registry(consulReq),
+	)
+	client = account.NewAccountService("micro.service.account", service.Client())
 }
 
 func newRouter() *gin.Engine {
