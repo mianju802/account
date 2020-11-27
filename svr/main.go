@@ -6,6 +6,7 @@ import (
 	"github.com/mianju802/protocol/service/account"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
+	"github.com/micro/go-micro/util/log"
 	"github.com/micro/go-plugins/registry/consul"
 	"github.com/patrickmn/go-cache"
 	"time"
@@ -38,6 +39,8 @@ func main() {
 				}
 			})
 			break
+		} else {
+			log.Debug("apollo 未读取到 consul 配置 。。。。")
 		}
 	}
 	service := micro.NewService(
