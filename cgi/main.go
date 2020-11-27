@@ -4,11 +4,14 @@ import (
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/mianju802/lib/apollo"
 	"github.com/mianju802/protocol/service/account"
 	"github.com/micro/go-micro"
 	"github.com/micro/go-micro/registry"
 	"github.com/micro/go-plugins/registry/consul"
+	"github.com/patrickmn/go-cache"
 	"net/http"
+	"time"
 )
 
 var (
@@ -16,14 +19,26 @@ var (
 )
 
 func initMicro() {
-	consulReq := consul.NewRegistry(func(options *registry.Options) {
-		options.Addrs = []string{
-			"172.16.68.131:30769",
+	apo := &apollo.Apollo{LocalCache: cache.New(5*time.Minute, 10*time.Minute)}
+	go func() {
+		apo.ReadApolloConfig("consul")
+	}()
+	var (
+		consulRegCli registry.Registry
+	)
+	for {
+		if consulAdd, ok := apo.LocalCache.Get("consulAdd"); ok {
+			consulRegCli = consul.NewRegistry(func(options *registry.Options) {
+				options.Addrs = []string{
+					consulAdd.(string),
+				}
+			})
+			break
 		}
-	})
+	}
 	service := micro.NewService(
 		micro.Name("micro.client.account"),
-		micro.Registry(consulReq),
+		micro.Registry(consulRegCli),
 	)
 	client = account.NewAccountService("micro.service.account", service.Client())
 }
